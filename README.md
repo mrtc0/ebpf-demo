@@ -1,6 +1,6 @@
 # eBPF Demos
 
-This repository contains the code I used for the demo during my [talk](https://engineercafe.connpass.com/event/309223/).
+This repository contains the code I used for the demo during my [talk](https://speakerdeck.com/mrtc0/kododeli-jie-suru-ebpf-sekiyuriteimonitaringu) @ ["eBPF & コンテナ情報交換会 @ 福岡"](https://engineercafe.connpass.com/event/309223/).
 
 # Usage
 
