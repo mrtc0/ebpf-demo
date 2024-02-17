@@ -62,3 +62,9 @@ Killed
 ```shell
 2024/02/17 04:30:32 INFO 🛡 BLOCKED comm=curl addr=93.184.216.34
 ```
+
+If use `wget` instead of `curl`, it will not be blocked.
+
+```shell
+$ wget https://example.com
+```
