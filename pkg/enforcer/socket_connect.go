@@ -55,7 +55,21 @@ func (e *socketConnectEnforcer) Start() error {
 		Data:      network.IPToInt(exampleComIPAddr),
 	}, uint32(0))
 	if err != nil {
-		slog.Error("failed putting data to map", "error", err)
+		slog.Error("failed putting denied IPv4 address to map", "error", err)
+		return err
+	}
+
+	_, err = unix.ByteSliceFromString("curl")
+	if err != nil {
+		slog.Error("failed converting curl command", "error", err)
+		return err
+	}
+
+	err = objs.DeniedCommandMap.Put(&socketConnectDeniedCommand{
+		Comm: [16]uint8{99, 117, 114, 108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}, uint32(0))
+	if err != nil {
+		slog.Error("failed putting denied commands to map", "error", err)
 		return err
 	}
 

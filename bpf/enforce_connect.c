@@ -24,6 +24,11 @@ struct event
   __u8 comm[TASK_COMM_LEN];
 };
 
+struct denied_command
+{
+  __u8 comm[TASK_COMM_LEN];
+};
+
 struct
 {
   __uint(type, BPF_MAP_TYPE_RINGBUF);
@@ -39,8 +44,17 @@ struct
   __uint(map_flags, BPF_F_NO_PREALLOC);
 } denied_ipaddr_map SEC(".maps");
 
+struct
+{
+  __uint(type, BPF_MAP_TYPE_HASH);
+  __uint(max_entries, 256);
+  __type(key, struct denied_command);
+  __type(value, __u32);
+} denied_command_map SEC(".maps");
+
 const struct event *unused __attribute__((unused));
 const struct ipv4_lpm_key *unused2 __attribute__((unused));
+const struct denied_command *unused3 __attribute__((unused));
 
 SEC("kprobe/sys_connect")
 int kprobe__sys_connect(struct pt_regs *ctx)
@@ -65,10 +79,13 @@ int kprobe__sys_connect(struct pt_regs *ctx)
 
   struct ipv4_lpm_key key = {
       .prefixlen = 32,
-      .data = evt.dst.s_addr
-  };
+      .data = evt.dst.s_addr};
 
-  if (bpf_map_lookup_elem(&denied_ipaddr_map, &key)) {
+  struct denied_command comm;
+  bpf_get_current_comm(&comm.comm, sizeof(evt.comm));
+
+  if (bpf_map_lookup_elem(&denied_ipaddr_map, &key) && bpf_map_lookup_elem(&denied_command_map, &comm))
+  {
     bpf_ringbuf_output(&events, &evt, sizeof(evt), 0);
     bpf_send_signal(9);
     bpf_override_return(ctx, -1);

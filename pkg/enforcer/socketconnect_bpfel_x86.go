@@ -12,6 +12,8 @@ import (
 	"github.com/cilium/ebpf"
 )
 
+type socketConnectDeniedCommand struct{ Comm [16]uint8 }
+
 type socketConnectEvent struct {
 	Dst  struct{ S_addr uint32 }
 	Comm [16]uint8
@@ -70,8 +72,9 @@ type socketConnectProgramSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type socketConnectMapSpecs struct {
-	DeniedIpaddrMap *ebpf.MapSpec `ebpf:"denied_ipaddr_map"`
-	Events          *ebpf.MapSpec `ebpf:"events"`
+	DeniedCommandMap *ebpf.MapSpec `ebpf:"denied_command_map"`
+	DeniedIpaddrMap  *ebpf.MapSpec `ebpf:"denied_ipaddr_map"`
+	Events           *ebpf.MapSpec `ebpf:"events"`
 }
 
 // socketConnectObjects contains all objects after they have been loaded into the kernel.
@@ -93,12 +96,14 @@ func (o *socketConnectObjects) Close() error {
 //
 // It can be passed to loadSocketConnectObjects or ebpf.CollectionSpec.LoadAndAssign.
 type socketConnectMaps struct {
-	DeniedIpaddrMap *ebpf.Map `ebpf:"denied_ipaddr_map"`
-	Events          *ebpf.Map `ebpf:"events"`
+	DeniedCommandMap *ebpf.Map `ebpf:"denied_command_map"`
+	DeniedIpaddrMap  *ebpf.Map `ebpf:"denied_ipaddr_map"`
+	Events           *ebpf.Map `ebpf:"events"`
 }
 
 func (m *socketConnectMaps) Close() error {
 	return _SocketConnectClose(
+		m.DeniedCommandMap,
 		m.DeniedIpaddrMap,
 		m.Events,
 	)
