@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	// 93.184.216.34 is example.com A record
 	exampleComIPAddr = net.ParseIP("93.184.216.34")
 )
 
@@ -25,12 +26,15 @@ type socketConnectEnforcer struct {
 	stopper chan os.Signal
 }
 
+// newSocketConnectEnforcer create a new connect(sys_onnect) syscall blocker
 func NewSocketConnectEnforcer(stopper chan os.Signal) Enforcer {
 	return &socketConnectEnforcer{
 		stopper: stopper,
 	}
 }
 
+// Start attaches to sys_connect kprobe to get and display events from ring buffer
+// The eBPF program loaded by this function blocks connections to example.com
 func (e *socketConnectEnforcer) Start() error {
 	var objs socketConnectObjects
 	if err := loadSocketConnectObjects(&objs, nil); err != nil {

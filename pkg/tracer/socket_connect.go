@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	// 93.184.216.34 is example.com A record
 	exampleComIPAddr = net.ParseIP("93.184.216.34")
 )
 
@@ -25,12 +26,14 @@ type socketConnectTracer struct {
 	stopper chan os.Signal
 }
 
+// newSocketConnectTracer create a new connect(security_socket_connect) syscall tracer
 func NewSocketConnectTracer(stopper chan os.Signal) Tracer {
 	return &socketConnectTracer{
 		stopper: stopper,
 	}
 }
 
+// Start attaches to security_socket_connect kprobe to get and display events from ring buffer
 func (t *socketConnectTracer) Start() error {
 	var objs socketConnectObjects
 	if err := loadSocketConnectObjects(&objs, nil); err != nil {
