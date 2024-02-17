@@ -23,7 +23,7 @@ CONFIG_BPF_KPROBE_OVERRIDE=y
 ## Build
 
 ```shell
-$ make vmlinux.h && make build
+$ make build
 ```
 
 ## Run
@@ -31,7 +31,7 @@ $ make vmlinux.h && make build
 Wanna try to trace connections towards "https://example.com" (93.184.216.34):
 
 ```shell
-$ sudo ./bin/demo tracer
+$ sudo ./bin/ebpf-demo tracer
 ```
 
 Then, in another terminal:
@@ -43,17 +43,22 @@ $ curl https://example.com
 And observe the output in terminal:
 
 ```shell
-2024/02/15 13:58:02 event: comm=curl addr=[93 184 216 34]
+2024/02/17 04:29:53 INFO ⏫ CONNECT comm=curl addr=93.184.216.34
 ```
 
 Then to block the connection:
 
 ```shell
-$ sudo ./bin/demo enforcer
+$ sudo ./bin/ebpf-demo enforce
 ```
 
 Running `curl https://example.com` in the same way will block the connection:
 
 ```shell
+$ curl https://example.com
+Killed
+```
 
+```shell
+2024/02/17 04:30:32 INFO 🛡 BLOCKED comm=curl addr=93.184.216.34
 ```
