@@ -59,14 +59,17 @@ func (e *socketConnectEnforcer) Start() error {
 		return err
 	}
 
-	_, err = unix.ByteSliceFromString("curl")
+	var comm [16]uint8
+	curlCmd, err := unix.ByteSliceFromString("curl")
 	if err != nil {
 		slog.Error("failed converting curl command", "error", err)
 		return err
 	}
 
+	copy(comm[:], curlCmd)
+
 	err = objs.DeniedCommandMap.Put(&socketConnectDeniedCommand{
-		Comm: [16]uint8{99, 117, 114, 108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		Comm: comm,
 	}, uint32(0))
 	if err != nil {
 		slog.Error("failed putting denied commands to map", "error", err)
